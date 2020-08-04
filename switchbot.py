@@ -38,7 +38,9 @@ class DevScanner(DefaultDelegate):
         time.sleep(3)
 
     def scan_loop(self):
-        service_uuid = '1bc5d5a50200b89fe6114d22000da2cb'
+        #service_uuid = '1bc5d5a50200b89fe6114d22000da2cb'
+        # The uuid the script came with was completely off - wtf? (04.08.2020 Y.I.)
+        service_uuid = 'cba20d00-224d-11e6-9fb8-0002a5d5c51b'
         menufacturer_id = '5900f46d2c8a5f31'
         dev_list =[]
         bot_list =[]
@@ -47,18 +49,17 @@ class DevScanner(DefaultDelegate):
         self.con = pexpect.spawn('hciconfig')
         pnum = self.con.expect(["hci0",pexpect.EOF,pexpect.TIMEOUT])
         if pnum==0:
+            print "Start scanning..."
             self.con = pexpect.spawn('hcitool lescan')
             #self.con.expect('LE Scan ...', timeout=5)
             scanner = Scanner().withDelegate(DevScanner())
             devices = scanner.scan(5.0)
-            print "Start scanning..."
         else:
             raise Error("no bluetooth error")
 
         for dev in devices:
             mac = 0
             for (adtype, desc, value) in dev.getScanData():
-                #print adtype,desc,value
                 if desc == '16b Service Data' :
                     model = binascii.a2b_hex(value[4:6])
                     mode  = binascii.a2b_hex(value[6:8])
@@ -130,7 +131,7 @@ def trigger_device(device):
 
 def main():
     #Check bluetooth dongle
-    print('Usage: "sudo python switchbot.py [mac_addr  cmd]" or "sudo python switchbot.py"')
+    #print('Usage: "sudo python switchbot.py [mac_addr  cmd]" or "sudo python switchbot.py"')
     connect = pexpect.spawn('hciconfig')
     pnum = connect.expect(["hci0",pexpect.EOF,pexpect.TIMEOUT])
     if pnum!=0:
